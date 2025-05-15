@@ -7,6 +7,19 @@ const fs = require("fs");
 const path = require("path");
 const token = process.env.BOT_TOKEN;
 
+// only for web service
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get("/", (req, res) => {
+  res.send("Bot is running");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
+
 const bot = new TelegramBot(token, { polling: true });
 const cacheDir = path.join(__dirname, "cache");
 if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
