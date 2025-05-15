@@ -1,7 +1,7 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const yts = require("yt-search");
-const youtubedl = require("youtube-dl-exec").raw;
+const youtubedl = require("youtube-dl-exec");
 const fs = require("fs");
 const path = require("path");
 
@@ -71,7 +71,7 @@ bot.on("callback_query", async (callback) => {
     }
 
     await youtubedl(videoUrl, {
-      exec: YT_DLP_PATH,
+      exec: "yt-dlp", // system-wide yt-dlp
       output: filePath,
       format: "bestaudio[ext=m4a]/bestaudio",
     });
