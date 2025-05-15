@@ -1,30 +1,27 @@
-// bot.js
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const yts = require("yt-search");
-const youtubedl = require("youtube-dl-exec");
+const youtubedl = require("youtube-dl-exec").raw;
 const fs = require("fs");
 const path = require("path");
+
 const token = process.env.BOT_TOKEN;
 
-// only for web service
+// Only for Render hosting
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-app.get("/", (req, res) => {
-  res.send("Bot is running");
-});
-
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+app.get("/", (req, res) => res.send("Bot is running"));
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
 const bot = new TelegramBot(token, { polling: true });
 const cacheDir = path.join(__dirname, "cache");
 if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
 
-// Handle /play command
+// Path to local yt-dlp binary
+const YT_DLP_PATH = path.join(__dirname, "bin", "yt-dlp");
+
+// /play command
 bot.onText(/\/play (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
   const query = match[1];
@@ -39,14 +36,12 @@ bot.onText(/\/play (.+)/, async (msg, match) => {
       return bot.sendMessage(chatId, "No results found.");
     }
 
-    const inlineKeyboard = topVideos.map((video) => {
-      return [
-        {
-          text: `${video.title} (${video.timestamp})`,
-          callback_data: `yt::${video.videoId}`,
-        },
-      ];
-    });
+    const inlineKeyboard = topVideos.map((video) => [
+      {
+        text: `${video.title} (${video.timestamp})`,
+        callback_data: `yt::${video.videoId}`,
+      },
+    ]);
 
     bot.sendMessage(chatId, "Choose a video:", {
       reply_markup: {
@@ -59,7 +54,7 @@ bot.onText(/\/play (.+)/, async (msg, match) => {
   }
 });
 
-// Handle button click
+// Handle video selection
 bot.on("callback_query", async (callback) => {
   const chatId = callback.message.chat.id;
   const videoId = callback.data.split("yt::")[1];
@@ -76,6 +71,7 @@ bot.on("callback_query", async (callback) => {
     }
 
     await youtubedl(videoUrl, {
+      exec: YT_DLP_PATH,
       output: filePath,
       format: "bestaudio[ext=m4a]/bestaudio",
     });
