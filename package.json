@@ -15,7 +15,7 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "node-telegram-bot-api": "^0.66.0",
-    "youtube-dl-exec": "^3.0.21",
+    "yt-dlp-exec": "^1.0.2",
     "yt-search": "^2.13.1"
   }
 }

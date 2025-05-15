@@ -1,7 +1,7 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
 const yts = require("yt-search");
-const youtubedl = require("youtube-dl-exec");
+const youtubedl = require("yt-dlp-exec").default;
 const fs = require("fs");
 const path = require("path");
 
